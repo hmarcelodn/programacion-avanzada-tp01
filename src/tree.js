@@ -7,8 +7,9 @@ class Node {
 }
 
 class Tree {
-    constructor() {
+    constructor(comparator = null) {
         this.root = null;
+        this.compare = comparator || ((a, b) => a < b ? -1 : a > b ? 1 : 0);
     }
 
     addValue(value) {
@@ -21,7 +22,7 @@ class Tree {
     }
 
     height() {
-        return this.#calculateHeight(this.root, 0);
+        return this.#calculateHeight(this.root);
     }
 
     findValue(value) {
@@ -33,17 +34,12 @@ class Tree {
             return null;
         }
 
-        const isSameValue = node.value === value;
-
-        if (isSameValue) {
+        const cmp = this.compare(value, node.value);
+        if (cmp === 0) {
             return node;
-        }
-
-        if (value < node.value && !isSameValue) {
+        } else if (cmp < 0) {
             return this.#findValueFromTree(value, node.left);
-        }
-
-        if (value >= node.value && !isSameValue) {
+        } else {
             return this.#findValueFromTree(value, node.right);
         }
     }
@@ -60,17 +56,15 @@ class Tree {
     }
 
     #addValueToTree(value, node) {
-        if (value < node.value) {
+        const cmp = this.compare(value, node.value);
+        if (cmp < 0) {
             if (!node.left) {
-                node.left = new Node();
-                node.left.value = value;
+                node.left = new Node(value);
                 return node.left;
             } else {
                 return this.#addValueToTree(value, node.left);
             }
-        } 
-        
-        if (value >= node.value) {
+        } else {
             if (!node.right) {
                 node.right = new Node(value);
                 return node.right;
