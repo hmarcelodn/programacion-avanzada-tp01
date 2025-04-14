@@ -52,3 +52,17 @@ const sample02 = () => {
 sample01();
 sample02();
 
+const sampleLarge = () => {
+    const samples = [];
+    while (samples.length < 9999) {
+        const num = Math.floor(Math.random() * 20000);
+        if (!samples.includes(num)) samples.push(num);
+    }
+
+    samples.push(samples[Math.floor(Math.random() * samples.length)]);
+
+    const tree = buildTree(samples);
+    console.log("Altura del nodo raiz:", tree.height());
+};
+
+sampleLarge();

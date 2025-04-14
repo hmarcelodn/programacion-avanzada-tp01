@@ -7,14 +7,13 @@ class Node {
 }
 
 class Tree {
-    constructor(){
+    constructor() {
         this.root = null;
     }
 
     addValue(value) {
-        if (!this.root) {
-            this.root = new Node();
-            this.root.value = value;
+        if (this.root === null) {
+            this.root = new Node(value);
             return this.root;
         } else {
             return this.#addValueToTree(value, this.root);
@@ -49,15 +48,15 @@ class Tree {
         }
     }
 
-    #calculateHeight(node, height = 0) {
+    #calculateHeight(node) {
         if (!node) {
-            return height;
+            return 0;
         }
 
-        const leftHeight = this.#calculateHeight(node.left, height + 1);
-        const rightHeight = this.#calculateHeight(node.right, height + 1);
+        const leftHeight = this.#calculateHeight(node.left);
+        const rightHeight = this.#calculateHeight(node.right);
 
-        return Math.max(leftHeight, rightHeight);
+        return Math.max(leftHeight, rightHeight) + 1;
     }
 
     #addValueToTree(value, node) {
@@ -73,8 +72,7 @@ class Tree {
         
         if (value >= node.value) {
             if (!node.right) {
-                node.right = new Node();
-                node.right.value = value;
+                node.right = new Node(value);
                 return node.right;
             } else {
                 return this.#addValueToTree(value, node.right);
