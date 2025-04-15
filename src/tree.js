@@ -9,12 +9,17 @@ class Node {
 class Tree {
     constructor(comparator = null) {
         this.root = null;
-        this.compare = comparator || ((a, b) => a < b ? -1 : a > b ? 1 : 0);
+        this.compare = comparator || ((a, b) => {
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        });
     }
 
     addValue(value) {
         if (this.root === null) {
             this.root = new Node(value);
+            console.log(`Nodo raiz insertado con registro = ${value.nro_registro}`);
             return this.root;
         } else {
             return this.#addValueToTree(value, this.root);
@@ -26,50 +31,75 @@ class Tree {
     }
 
     findValue(value) {
+        // if (!value || !value.nro_registro) {
+        //     console.warn('findValue called with invalid value or missing nro_registro', value);
+        //     return null;
+        // }
+        // if (isNaN(parseInt(value.nro_registro))) {
+        //     console.warn('findValue called with invalid nro_registro', value.nro_registro);
+        //     return null;
+        // }
         return this.#findValueFromTree(value, this.root);
     }
 
-    #findValueFromTree(value, node) {
-        if (!node) {
-            return null;
+    #findValueFromTree(value, startNode) {
+        let currentNode = startNode;
+        while (currentNode !== null) {
+            const cmp = this.compare(value, currentNode.value);
+            
+            if (cmp === 0) {
+                return currentNode;
+            } else if (cmp < 0) {
+                currentNode = currentNode.left;
+            } else {
+                currentNode = currentNode.right;
+            }
         }
-
-        const cmp = this.compare(value, node.value);
-        if (cmp === 0) {
-            return node;
-        } else if (cmp < 0) {
-            return this.#findValueFromTree(value, node.left);
-        } else {
-            return this.#findValueFromTree(value, node.right);
-        }
+        return null;
     }
 
     #calculateHeight(node) {
-        if (!node) {
-            return 0;
+        if (!node) return 0;
+        
+        let height = 0;
+        const queue = [{ node, level: 1 }];
+        
+        while (queue.length > 0) {
+            const { node: current, level } = queue.shift();
+            height = Math.max(height, level);
+            
+            if (current.left) {
+                queue.push({ node: current.left, level: level + 1 });
+            }
+            if (current.right) {
+                queue.push({ node: current.right, level: level + 1 });
+            }
         }
-
-        const leftHeight = this.#calculateHeight(node.left);
-        const rightHeight = this.#calculateHeight(node.right);
-
-        return Math.max(leftHeight, rightHeight) + 1;
+        
+        return height;
     }
 
-    #addValueToTree(value, node) {
-        const cmp = this.compare(value, node.value);
-        if (cmp < 0) {
-            if (!node.left) {
-                node.left = new Node(value);
-                return node.left;
+    #addValueToTree(value, startNode) {
+        let currentNode = startNode;
+        while (true) {
+            const cmp = this.compare(value, currentNode.value);
+            
+            if (cmp === 0) {
+                return currentNode; // Duplicate
+            } else if (cmp < 0) {
+                if (!currentNode.left) {
+                    currentNode.left = new Node(value);
+                    return currentNode.left;
+                } else {
+                    currentNode = currentNode.left;
+                }
             } else {
-                return this.#addValueToTree(value, node.left);
-            }
-        } else {
-            if (!node.right) {
-                node.right = new Node(value);
-                return node.right;
-            } else {
-                return this.#addValueToTree(value, node.right);
+                if (!currentNode.right) {
+                    currentNode.right = new Node(value);
+                    return currentNode.right;
+                } else {
+                    currentNode = currentNode.right;
+                }
             }
         }
     }
